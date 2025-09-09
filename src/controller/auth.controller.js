@@ -164,7 +164,7 @@ const routingDashboard = async (req, res) => {
         }
         // redirect with token in URL
     } catch (err) {
-        console.error("JWT Error:", err.message);
+        console.error("JWT Error2:", err.message);
         return res.status(401).json({ message: "Unauthorized - Invalid Token" });
     }
 }
