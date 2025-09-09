@@ -28,11 +28,11 @@ const loginViaOtp = async (req, res) => {
         console.log(`✅ OTP for ${email}: ${otp}`);
 
         return res
-        .render("otp",{
-            emailSent: true,
-            email,
-            message: "otp sent"
-        })
+            .render("otp", {
+                emailSent: true,
+                email,
+                message: "otp sent"
+            })
         // .status(200).json({
         //     message: "OTP sent to email. Please verify.",
         //     email,
@@ -52,12 +52,15 @@ const verifyOtp = async (req, res) => {
                 email: String(email)
             }
         });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
 
-        console.log(user)
 
-        if (!user) return res.status(404).json({ error: "User not found" });
+        if (user.otp !== otp) {
+            return res.status(401).json({ error: "Invalid OTP" });
+        }
 
-        if (user.otp !== otp) return res.status(401).json({ error: "Invalid OTP" });
 
         if (new Date() > new Date(user.otpExpire)) {
             return res.status(410).json({ error: "OTP expired" });
@@ -69,34 +72,103 @@ const verifyOtp = async (req, res) => {
             data: { otp: null, otpExpire: null },
         });
 
-        const token = jwt.sign(
+        const refreshToken = jwt.sign(
+            { userID: user.id, email },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: "90d" }
+        );
+
+        const accessToken = jwt.sign(
             { userID: user.id, email },
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         );
 
         return res
-        .redirect(`http://localhost:8080/${token}`)
-        // .status(200).json({
-        //     message: "OTP verified successfully",
-        //     token,
-        // });
+            // .redirect(`http://localhost:8080/dashboard/${token}`)
+            .cookie("refreshToken", refreshToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                maxAge: 90 * 24 * 60 * 60 * 1000
+            })
+            .cookie("accessToken", accessToken, {
+                httpOnly: true,
+                sameSite: "strict",
+                maxAge: 60 * 60 * 1000 // 1h
+            })
+            .status(200).json({
+                message: "OTP verified successfully",
+                refreshToken,
+                accessToken,
+            });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Server error" });
     }
 };
 
-const verifyTokenAndLoadAdmin = (req, res) => {
-    const { token } = req.params;
+const verifyTokenAndLoadAdmin = async (req, res) => {
+  const { refreshToken } = req.params;
 
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        return res.send("Welcome to Admin Panel ✅");
-    } catch (err) {
-        return res.status(401).send("Unauthorized access");
-    }
+  if (!refreshToken) {
+    return res.status(401).json({ message: "No refresh token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    // FIX: use userID instead of id
+    const { userID, email } = decoded;
+
+    const newAccessToken = jwt.sign(
+      { userID, email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.cookie("authToken", newAccessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1h
+    });
+
+    return res.json({
+      message: "Welcome to Admin Panel ✅",
+      authToken: newAccessToken,
+    });
+  } catch (err) {
+    console.log("JWT Verify Error:", err.message);
+    return res.status(401).json({ error: "Unauthorized access" });
+  }
 };
+
+
+
+const routingDashboard = async (req, res) => {
+    try {
+        const token = req.cookies?.authToken;
+        console.log("AuthToken:", token);
+
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized - No Token" });
+        }
+
+        // verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log("Decoded payload:", decoded);
+
+        if (decode) {
+            return res.redirect(`http://localhost:8080/dashboard/${token}`);
+        } else {
+            return console.log('Error')
+        }
+        // redirect with token in URL
+    } catch (err) {
+        console.error("JWT Error:", err.message);
+        return res.status(401).json({ message: "Unauthorized - Invalid Token" });
+    }
+}
+
 
 
 // SIGN UP CONTROLLER ------>
@@ -129,4 +201,4 @@ const signUp = async (req, res) => {
     }
 };
 
-module.exports = { loginViaOtp, verifyOtp, verifyTokenAndLoadAdmin, signUp };
+module.exports = { loginViaOtp, verifyOtp, verifyTokenAndLoadAdmin, routingDashboard, signUp };

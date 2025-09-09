@@ -1,21 +1,18 @@
 const jwt = require("jsonwebtoken");
-const JWT_SECRET = process.env.JWT_SECRET || "super_secret_key";
 
-const authMiddleware = (req, res, next) => {
-  const { token } = req.params;
 
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized access, token required" });
-  }
+const verifyAccessToken = (req, res, next) => {
+  const token = req.cookies?.accessToken;
+  if (!token) return res.status(401).json({ message: "Unauthorized - No Token" });
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // attach user data
     next();
   } catch (err) {
-    console.log(err);
-    return res.status(401).json({ error: "Invalid or expired token" });
+    return res.status(403).json({ message: "Unauthorized - Invalid/Expired Token" });
   }
 };
 
-module.exports = authMiddleware;
+
+module.exports = { verifyAccessToken};
