@@ -66,6 +66,8 @@ const verifyOtp = async (req, res) => {
             return res.status(410).json({ error: "OTP expired" });
         }
 
+        console.log(user)
+
         // clear OTP
         await prisma.user.update({
             where: { email },
@@ -73,15 +75,23 @@ const verifyOtp = async (req, res) => {
         });
 
         const refreshToken = jwt.sign(
-            { userID: user.id, email },
+            {
+                userID: user.id,
+                email: user.email,
+                companyId: user.companyId
+            },
             process.env.JWT_REFRESH_SECRET,
             { expiresIn: "90d" }
         );
 
         const accessToken = jwt.sign(
-            { userID: user.id, email },
+            {
+                userID: user.id,
+                email: user.email,
+                companyId: user.companyId
+            },
             process.env.JWT_SECRET,
-            { expiresIn: "1h" }
+            { expiresIn: "15m" }
         );
 
         return res
@@ -108,96 +118,105 @@ const verifyOtp = async (req, res) => {
 };
 
 const verifyTokenAndLoadAdmin = async (req, res) => {
-  const { refreshToken } = req.params;
+    const  accessToken  = req.cookies?.accessToken;
+    console.log(accessToken)
 
-  if (!refreshToken) {
-    return res.status(401).json({ message: "No refresh token provided" });
-  }
+    if (!accessToken) {
+        return res.status(401).json({ message: "No refresh token provided" });
+    }
 
-  try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    try {
+        const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
 
-    // FIX: use userID instead of id
-    const { userID, email } = decoded;
+        console.log("Token Decode",decoded);
 
-    const newAccessToken = jwt.sign(
-      { userID, email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+        // FIX: use userID instead of id
+        const { userID, email, companyId } = decoded;
 
-    res.cookie("authToken", newAccessToken, {
-      httpOnly: true,
-      sameSite: "strict",
-      maxAge: 60 * 60 * 1000, // 1h
-    });
+        const newAccessToken = jwt.sign(
+            { userID, email, companyId },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
 
-    return res.json({
-      message: "Welcome to Admin Panel ✅",
-      authToken: newAccessToken,
-    });
-  } catch (err) {
-    console.log("JWT Verify Error:", err.message);
-    return res.status(401).json({ error: "Unauthorized access" });
-  }
+        res.cookie("authToken", newAccessToken, {
+            httpOnly: true,
+            sameSite: "strict",
+            maxAge: 60 * 60 * 1000, // 1h
+        });
+
+        return res.json({
+            message: "Welcome to Admin Panel ✅",
+            authToken: newAccessToken,
+            refreshToken: req.cookies.refreshToken
+        });
+    } catch (err) {
+        console.log("JWT Verify Error:", err.message);
+        return res.status(401).json({ error: "Unauthorized access" });
+    }
 };
 
 
 
 const routingDashboard = async (req, res) => {
     try {
-        const token = req.cookies?.authToken;
-        console.log("AuthToken:", token);
+        console.log("Decoded user from middleware:", req.user);
 
-        if (!token) {
-            return res.status(401).json({ message: "Unauthorized - No Token" });
-        }
-
-        // verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Decoded payload:", decoded);
-
-        if (decode) {
-            return res.redirect(`http://localhost:8080/dashboard/${token}`);
-        } else {
-            return console.log('Error')
-        }
-        // redirect with token in URL
+        return res.json({
+            message: `Welcome to Admin Dashboard ✅`,
+            user: req.user,
+        });
     } catch (err) {
-        console.error("JWT Error2:", err.message);
-        return res.status(401).json({ message: "Unauthorized - Invalid Token" });
+        console.error("Dashboard error:", err.message);
+        return res.status(500).json({ message: "Server error" });
     }
-}
+};
 
 
 
 // SIGN UP CONTROLLER ------>
 const signUp = async (req, res) => {
-    const { email, name, role } = req.body;
-
     try {
+        const { email, name, role, companyId } = req.body;
+
         // check if user already exists
-        const existingUser = await prisma.user.findFirst({
-            where: { email },
+        const existingUser = await prisma.user.findUnique({
+            where: { email }
         });
 
         if (existingUser) {
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(400).json({ message: "User already exists ❌" });
         }
 
-        // create new user
+        // check if company exists
+        const company = await prisma.company.findUnique({
+            where: { id: companyId }
+        });
+
+        if (!company) {
+            return res.status(404).json({ message: "Company not found ❌" });
+        }
+
+        // create user
         const newUser = await prisma.user.create({
             data: {
                 email,
                 name,
-                role,
-            },
+                role,  // "ADMIN", "USER", or "MANAGER"
+                company: {
+                    connect: { id: companyId } // ✅ link user to existing company
+                }
+            }
         });
 
-        return res.status(201).json({ message: "User created successfully", user: newUser });
+        return res.status(201).json({
+            message: "User signed up successfully ✅",
+            user: newUser
+        });
+
     } catch (error) {
         console.error("Error creating user:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return res.status(500).json({ error: "Failed to create user" });
     }
 };
 

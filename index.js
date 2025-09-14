@@ -1,22 +1,20 @@
-const { PORT } = require('./config/appConfig');
+const { PORT } = require('./config/appConfig')
 const DB = require('./config/db')
-const {app} = require('./src/server')
+const { app } = require('./src/server')
 
+DB.connect()
+  .then(() => {
+    console.log('✅ Database connected')
 
-DB
-    .connect()
-    .then(() => {
-        console.log("✅ Database connected");
-
-        // const PORT = process.env.PORT || 3000;
-        app.listen(8080, () => {
-            console.log(`✅ Server is running at port: ${PORT}`);
-        });
-        app.on("Error", (error) => {
-            console.log(error)
-        })
+    const PORT = process.env.PORT || 3000
+    app.listen(PORT, () => {
+      console.log(`✅ Server is running at port: ${PORT}`)
     })
-    .catch((err) => {
-        console.log("Connection Failed", err);
-        process.exit(1);
-    });
+    app.on('Error', (error) => {
+      console.log(error)
+    })
+  })
+  .catch((err) => {
+    console.log('Connection Failed', err)
+    process.exit(1)
+  })

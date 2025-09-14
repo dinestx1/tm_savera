@@ -1,7 +1,6 @@
 const express = require('express')
 const cors = require('cors')
 const jwt = require("jsonwebtoken");
-const { authRouter } = require('./routes/auth.routes')
 const path = require('path')
 const cookieParser = require('cookie-parser')
 
@@ -21,16 +20,16 @@ app.set("views", path.join(__dirname, "utils/views"));
 
 app.get('/', (req, res) => {
   try {
-    const authToken = req.cookies.authToken;
+    const authToken = req.cookies.refreshToken;
 
     if (!authToken) {
       return res.status(401).json("Unauthorized Access 1");
     }
 
-    const decodedToken = jwt.verify(authToken, process.env.JWT_SECRET);
+    const decodedToken = jwt.verify(authToken, process.env.JWT_REFRESH_SECRET);
 
     if (decodedToken) {
-      return res.redirect(`http://localhost:8080/dashboard/${authToken}`);
+      return res.redirect(`http://localhost:8080/admin/dashboard`);
     } else {
       return res.status(401).json("Unauthorized Access 2");
     }
@@ -42,7 +41,10 @@ app.get('/', (req, res) => {
 
 
 // Routes ----->
+const { authRouter } = require('./routes/auth.routes')
+const {companyRouter} = require('./routes/company.routes')
 app.use("/", authRouter);
+app.use("/company", companyRouter);
 
 // Catch-all for invalid routes
 app.use((req, res) => {

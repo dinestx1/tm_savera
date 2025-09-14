@@ -20,25 +20,100 @@ enum Role {
   MANAGER
 }
 
+enum Status {
+  PENDING
+  ONGOING
+  COMPLETED
+}
+
+// Career
+
+model Company {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  title              String   @unique
+  aboutUs            String
+  whatWeDO           Json
+  establishementYear DateTime
+  officeStaff        Int
+  fieldWorkers       Int
+  projectsCount      Int // renamed from "Projects" to avoid confusion with relation
+
+  // Relations
+  services     Service[]
+  users        User[]
+  contacts     Contact[]
+  projects     Project[]
+  testimonials Testimonials[]
+}
+
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  email     String    @unique
   name      String?
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updateAt  DateTime @updatedAt
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updateAt  DateTime  @updatedAt
   otp       String?
   otpExpire DateTime?
-  contacts   Contact[]
+
+  // Relation
+  companyId String  @db.ObjectId
+  company   Company @relation(fields: [companyId], references: [id])
 }
 
 model Contact {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  phone     BigInt
-  address   String
-
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  phone          BigInt
+  address        String
+  openOfficeTime Json?
+  email          String
+  location       String
 
   // Relation
-  userId    String @map("user_id")  @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id])
+  companyId String  @db.ObjectId
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Project {
+  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
+  title                   String
+  type                    String
+  client                  String
+  startDate               DateTime
+  estimatedComplitionDate DateTime
+  status                  Status
+  manager                 String
+  aboutProject            String
+  description             String
+
+  // Relation
+  companyId String  @db.ObjectId
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Service {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  features    String[]
+
+  primaryBtn    String? // e.g. "Get a Quote"
+  primaryLink   String? // e.g. "/quote"
+  secondaryBtn  String? // e.g. "Learn More"
+  secondaryLink String? // e.g. "/services/building"
+
+  // Relation
+  companyId String  @db.ObjectId
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Testimonials {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  clientName  String?
+  companyName String?
+  feedback    String
+  rating      Int
+  // Relation
+  Company     Company @relation(fields: [companyId], references: [id])
+  companyId   String  @db.ObjectId
 }

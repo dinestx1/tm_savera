@@ -15,3 +15,4 @@ async function connect() {
 
 
 module.exports = { prisma, connect };
+
