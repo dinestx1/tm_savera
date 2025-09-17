@@ -54,6 +54,11 @@ model Company {
   users    User[]
   contacts Contact[]
   projects Project[]
+
+  // Self relation (Parent ↔ Children)
+  parentId String?   @db.ObjectId
+  parent   Company?  @relation("CompanyHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children Company[] @relation("CompanyHierarchy")
 }
 
 model User {
