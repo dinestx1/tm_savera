@@ -16,7 +16,7 @@
     "dev": "nodemon index.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.15.0",
+    "@prisma/client": "^6.16.2",
     "axios": "^1.11.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
@@ -24,6 +24,7 @@
     "dotenv": "^17.2.2",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.19.0",
     "mongoose": "^8.18.0",
@@ -31,6 +32,6 @@
     "nodemon": "^3.1.10"
   },
   "devDependencies": {
-    "prisma": "^6.15.0"
+    "prisma": "^6.16.2"
   }
 }

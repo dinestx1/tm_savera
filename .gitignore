@@ -1,3 +1,8 @@
-
-/generated/prisma
 node_modules
+
+.env
+
+# Prisma generated client
+/generated/prisma
+.prisma/
+@prisma/client/

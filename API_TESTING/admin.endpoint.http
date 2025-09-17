@@ -1,0 +1,168 @@
+### GET ================= Send OTP ==================
+GET {{base_url}}/vishnuprakash572@gmail.com
+Authorization: Bearer {{refreshToken}}
+Content-Type: application/json
+
+### POST ================= Verify OTP ==================
+POST {{base_url}}/verify/vishnuprakash572@gmail.com
+Content-Type: application/json
+
+{
+  "otp": "356257"
+}
+
+### GET ================== Admin Dashboard ==================
+GET {{base_url}}/admin/dashboard
+Cookie: authToken={{accessToken}}
+Content-Type: application/json
+
+
+### GET ================== Company Route ==================
+GET {{base_url}}/company/get-company
+Cookie: authToken={{accessToken}}
+Content-Type: application/json
+
+
+### POST ================== Create Company Contact ==================
+POST {{base_url}}/auth/company/create-contact
+Content-Type: application/json
+
+{
+  "companyId": "68c1d52beb761ea90d99eb6c",
+  "phone": "9876543210",
+  "email": "VISHNU@GMAIL.COM",
+  "address": "123, Main Street, City, Country",
+  "location": "https://maps.google.com/?q=123,Main+Street,City,Country",
+  "socialMedia": [
+    {
+      "platform": "facebook",
+      "url": "https://facebook.com/yourpage"
+    },
+    {
+      "platform": "twitter",
+      "url": "https://twitter.com/yourprofile"
+    },
+    {
+      "platform": "linkedin",
+      "url": "https://linkedin.com/in/yourprofile"
+    }
+  ],
+  "openOfficeTime": {
+    "start": "09:00 AM",
+    "end": "06:00 PM"
+  }
+}
+
+### PATCH ================== Update Company Contact ==================
+PATCH  {{base_url}}/auth/company/update-contact
+Content-Type: application/json
+
+{
+  // "companyId": "68c1d52beb761ea90d99eb6c",
+  "contactId": "68c73cde31d9d00867845b1a",
+  "phone": "8936860540",
+  "email": "VISHNUprakash572@GMAIL.COM",
+  "address": "123, Main Street, City, Country",
+  "location": "https://maps.google.com/?q=123,Main+Street,City,Country",
+  "socialMedia": [
+    {
+      "platform": "facebook",
+      "url": "https://facebook.com/yourpage"
+    },
+    {
+      "platform": "twitter",
+      "url": "https://twitter.com/yourprofile"
+    },
+    {
+      "platform": "linkedin",
+      "url": "https://linkedin.com/in/yourprofile"
+    }
+  ],
+  "openOfficeTime": {
+    "start": "09:00 AM",
+    "end": "06:00 PM"
+  }
+}
+
+
+
+
+
+### POST ================== Create Company Project ==================
+POST {{base_url}}/auth/company/create-project
+Content-Type: application/json
+
+{
+  "companyId": "68c1d52beb761ea90d99eb6c",
+  "title": "Project Title",
+  "category": "COMMERCIAL",
+  "budget": 50000,
+  "manager": "Alice Johnson",
+  "aboutProject": "Short summary about the project.",
+  "description": "Detailed description of the project.",
+  "client": "Client Name",
+  "startDate": "2023-10-01T00:00:00.000Z",
+  "CompletionDate": "2024-03-31T00:00:00.000Z",
+  "location": "Mumbai",
+  "teamSize": 10,
+  "status": "ONGOING",
+  "milestones": [
+    {
+      "title": "Milestone 1",
+      "dueDate": "2023-11-15",
+      "status": "Completed"
+    },
+    {
+      "title": "Milestone 2",
+      "dueDate": "2024-01-31",
+      "status": "In Progress"
+    }
+  ],
+  "keyFeatures": ["Node.js", "React", "MongoDB"],
+  "projectImage": ["image1.png", "image2.png"],
+  "projectVideo": "video.mp4",
+  "project360": "virtual-tour.mp4",
+  "awards": [
+    { "name": "Best Design", "year": 2023, "by": "ABC Org" }
+  ]
+}
+
+### PATCH ================== Update Company Project ==================
+PATCH {{base_url}}/auth/company/update-project
+Content-Type: application/json
+
+{
+  "companyId": "68c1d52beb761ea90d99eb6c",
+  "projectId": "68c7e456fe24d67bda1cea39",
+  "category": "RESIDENTIAL",
+  "budget": 75000,
+  "manager": "Alice Johnson",
+  "aboutProject": "Updated short summary.",
+  "description": "Updated detailed description.",
+  "client": "Updated Client",
+  "CompletionDate": "2024-06-30T00:00:00.000Z",
+  "location": "Pune",
+  "teamSize": 15,
+  "status": "COMPLETED",
+  "milestones": [
+    {
+      "title": "Milestone 1",
+      "dueDate": "2023-11-15",
+      "status": "Completed"
+    },
+    {
+      "title": "Milestone 2",
+      "dueDate": "2024-01-31",
+      "status": "Completed"
+    }
+  ],
+  "keyFeatures": ["Node.js", "React", "GraphQL"],
+  "projectImage": ["image3.png", "image4.png"],
+  "projectVideo": "updated-video.mp4",
+  "project360": "updated-virtual-tour.mp4",
+  "awards": [
+    { "name": "Excellence Award", "year": 2024, "by": "XYZ Org" }
+  ]
+}
+
+

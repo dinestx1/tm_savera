@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  // output   = "../generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -26,24 +26,34 @@ enum Status {
   COMPLETED
 }
 
+enum ProjectType {
+  RESIDENTIAL // Houses, apartments, villas
+  COMMERCIAL // Offices, malls, shops
+  INDUSTRIAL // Factories, warehouses, plants
+  INSTITUTIONAL // Schools, hospitals, colleges
+  INFRASTRUCTURE // Roads, bridges, airports
+  MIXED_USE // Combination (e.g., residential + commercial)
+  RENOVATION // Remodeling / restoration
+  OTHER // For cases not covered above
+}
+
 // Career
 
 model Company {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  title              String   @unique
-  aboutUs            String
-  whatWeDO           Json
-  establishementYear DateTime
-  officeStaff        Int
-  fieldWorkers       Int
-  projectsCount      Int // renamed from "Projects" to avoid confusion with relation
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  title             String?   @unique
+  aboutUs           String?
+  whatWeDO          Json?
+  establishmentYear DateTime?
+  officeStaff       Int?
+  fieldWorkers      Int?
+  projectsCount     Int? // renamed from "Projects" to avoid confusion with relation
 
   // Relations
-  services     Service[]
-  users        User[]
-  contacts     Contact[]
-  projects     Project[]
-  testimonials Testimonials[]
+  services Service[]
+  users    User[]
+  contacts Contact[]
+  projects Project[]
 }
 
 model User {
@@ -62,12 +72,13 @@ model User {
 }
 
 model Contact {
-  id             String @id @default(auto()) @map("_id") @db.ObjectId
-  phone          BigInt
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  phone          String
   address        String
   openOfficeTime Json?
   email          String
-  location       String
+  location       String?
+  socialMedia    Json?
 
   // Relation
   companyId String  @db.ObjectId
@@ -75,16 +86,25 @@ model Contact {
 }
 
 model Project {
-  id                      String   @id @default(auto()) @map("_id") @db.ObjectId
-  title                   String
-  type                    String
-  client                  String
-  startDate               DateTime
-  estimatedComplitionDate DateTime
-  status                  Status
-  manager                 String
-  aboutProject            String
-  description             String
+  id             String      @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  category       ProjectType
+  budget         Float
+  manager        String
+  aboutProject   String
+  description    String
+  client         String
+  startDate      DateTime
+  CompletionDate DateTime
+  location       String
+  teamSize       Int?
+  status         Status
+  milestones     Json?
+  keyFeatures    String[]
+  projectImage   String[]
+  projectVideo   String?
+  project360     String?
+  awards         Json?
 
   // Relation
   companyId String  @db.ObjectId
@@ -108,12 +128,13 @@ model Service {
 }
 
 model Testimonials {
-  id          String  @id @default(auto()) @map("_id") @db.ObjectId
-  clientName  String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  clientName  String
+  email       String
+  contactNo   String?
   companyName String?
   feedback    String
   rating      Int
-  // Relation
-  Company     Company @relation(fields: [companyId], references: [id])
-  companyId   String  @db.ObjectId
+  photo       String?
+  createdAt   DateTime @default(now())
 }

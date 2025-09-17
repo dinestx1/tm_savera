@@ -1,0 +1,15 @@
+### ================= Get Company Project ==================
+
+GET  {{base_url}}/company/get-project
+Content-Type: application/json
+
+
+
+###GET ================== Get Company Contact ==================
+GET {{base_url}}/company/get-contact
+Content-Type: application/json
+
+
+### GET ================== Get Project Details ==================
+GET {{base_url}}/company/get-project
+Content-Type: application/json
