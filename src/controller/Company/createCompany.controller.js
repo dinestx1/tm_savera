@@ -1,4 +1,3 @@
-const jwt = require('jsonwebtoken')
 const { prisma } = require('../../../config/db')
 
 const createCompany = async (req, res) => {
@@ -121,9 +120,6 @@ const createCompany = async (req, res) => {
     return res.status(500).json({
       error: 'Failed to create company',
     })
-  } finally {
-    // optional: don't disconnect here if Prisma Client is shared across app lifetime.
-    // await prisma.$disconnect();
   }
 }
 

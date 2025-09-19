@@ -6,6 +6,8 @@ const { createCompanyContact } = require('../controller/Company/createContact.co
 const { updateContact } = require('../controller/Company/updateContact.controller')
 const { createProject } = require('../controller/Company/createProject.controller')
 const { updateCompanyProject } = require('../controller/Company/updateProject.controller')
+const { createSubsidiary } = require('../controller/Company/createSubsidiary.controller')
+const { updateSubsidiary } = require('../controller/Company/updateSubsidiary.controller')
 
 const adminCompanyRouter = express.Router()
 
@@ -51,6 +53,20 @@ adminCompanyRouter.patch(
   authMiddleware.verifyAccessToken,
   authMiddleware.companyVerification,
   updateCompanyProject
+)
+
+// Subsidiary Routes
+adminCompanyRouter.post(
+  '/create-subsidiary',
+  authMiddleware.verifyAccessToken,
+  authMiddleware.companyVerification,
+  createSubsidiary
+)
+adminCompanyRouter.patch(
+  '/update-subsidiary',
+  authMiddleware.verifyAccessToken,
+  authMiddleware.companyVerification,
+  updateSubsidiary
 )
 
 module.exports = { adminCompanyRouter }

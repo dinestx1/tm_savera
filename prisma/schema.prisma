@@ -50,15 +50,11 @@ model Company {
   projectsCount     Int? // renamed from "Projects" to avoid confusion with relation
 
   // Relations
-  services Service[]
-  users    User[]
-  contacts Contact[]
-  projects Project[]
-
-  // Self relation (Parent ↔ Children)
-  parentId String?   @db.ObjectId
-  parent   Company?  @relation("CompanyHierarchy", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  children Company[] @relation("CompanyHierarchy")
+  services     Service[]
+  users        User[]
+  contacts     Contact[]
+  projects     Project[]
+  subsidiaries Subsidiary[]
 }
 
 model User {
@@ -142,4 +138,19 @@ model Testimonials {
   rating      Int
   photo       String?
   createdAt   DateTime @default(now())
+}
+
+model Subsidiary {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  title             String?   @unique
+  aboutUs           String?
+  whatWeDO          Json?
+  establishmentYear DateTime?
+  officeStaff       Int?
+  fieldWorkers      Int?
+  projectsCount     Int?
+
+  // Relation
+  parentId String  @db.ObjectId
+  parent   Company @relation(fields: [parentId], references: [id])
 }
