@@ -1,9 +1,15 @@
-const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { prisma } = require('../../../config/db')
+const { sendEmail, newOtp } = require('../../utils/mail/otp.mail')
+
+// LOGIN CONTROLLER ------>
 
 const loginViaOtp = async (req, res) => {
   const { email } = req.params
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase())) {
+    return res.status(400).json({ error: 'Invalid email address' })
+  }
 
   try {
     const user = await prisma.user.findUnique({ where: { email } })
@@ -13,18 +19,23 @@ const loginViaOtp = async (req, res) => {
     }
 
     // Generate OTP (6-digit)
-    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const otp = newOtp()
+    const otpTimestamp = Date.now()
+    const otpExpiry = otpTimestamp + 10 * 60 * 1000
 
     // Save OTP + expiry (5 min)
     await prisma.user.update({
       where: { email },
       data: {
         otp,
-        otpExpire: new Date(Date.now() + 5 * 60 * 1000),
+        otpExpire: new Date(otpExpiry),
       },
     })
 
-    // TODO: send OTP via email/SMS
+    // Choose Template and send OTP
+    const templateType = 'newUserOtp'
+    await sendEmail(email, templateType, { otp, email })
+
     console.log(`✅ OTP for ${email}: ${otp}`)
 
     return res.render('otp', {

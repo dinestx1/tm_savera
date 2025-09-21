@@ -55,6 +55,8 @@ model Company {
   contacts     Contact[]
   projects     Project[]
   subsidiaries Subsidiary[]
+  careers      Career[]
+  teams        Team[]
 }
 
 model User {
@@ -122,6 +124,48 @@ model Service {
   primaryLink   String? // e.g. "/quote"
   secondaryBtn  String? // e.g. "Learn More"
   secondaryLink String? // e.g. "/services/building"
+
+  // Relation
+  companyId String  @db.ObjectId
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Career {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  description      String
+  location         String
+  jobType          String
+  requirements     String[]
+  responsibilities String[]
+  benefits         String[]
+  applyLink        String
+  createdAt        DateTime @default(now())
+
+  // Relation
+  companyId String  @db.ObjectId
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Inquiry {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model Team {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  position  String
+  photo     String?
+  bio       String?
+  email     String?
+  phone     String?
+  social    Json?
+  createdAt DateTime @default(now())
 
   // Relation
   companyId String  @db.ObjectId
