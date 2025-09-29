@@ -2,7 +2,9 @@ const { prisma } = require('../../../config/db')
 
 const getCompanyProject = async (req, res) => {
   try {
-    const projects = await prisma.project.findMany()
+    const projects = await prisma.project.findMany({
+      where: { companyId: req.companyId },
+    })
     return res.status(200).json(projects)
   } catch (error) {
     console.log(error)

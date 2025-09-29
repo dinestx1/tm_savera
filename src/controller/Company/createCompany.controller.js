@@ -14,6 +14,7 @@ const createCompany = async (req, res) => {
       title,
       aboutUs,
       whatWeDO,
+      url,
       establishementYear,
       officeStaff,
       fieldWorkers,
@@ -94,6 +95,7 @@ const createCompany = async (req, res) => {
       data: {
         title,
         aboutUs,
+        url,
         whatWeDO: whatWeDoParsed,
         establishmentYear: estYear,
         officeStaff: officeStaffNum,

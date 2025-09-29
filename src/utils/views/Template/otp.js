@@ -338,11 +338,10 @@ function otpEmailTemplate(otp, email) {
             <p class="otp-expire">Expires in 10 minutes</p>
           </div>
 
-          <a
-            href="http://localhost:3000/verification?email=${encodeURIComponent(email)}&otp=${otp}"
-            class="login-button"
-            >Access Dashboard</a
-          >
+          <a class="login-button" href="http://localhost:3000/otp/verification?email=${encodeURIComponent(
+            email
+          )}&otp=${otp}">Access Dashboard</a>
+
 
           <p>
             Did not request this OTP? Contact

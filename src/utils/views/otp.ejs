@@ -1,37 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>OTP Verification</title>
-</head>
-<body>
-  <h2>OTP Verification</h2>
-  <p><%= message %></p>
+  <head>
+    <title>OTP Verification</title>
+  </head>
+  <body>
+    <h2>OTP Verification</h2>
+    <p><%= message %></p>
 
-<script>
-  const email = "<%= email %>"; // ✅ explicitly assign email
-  console.log("Email from EJS:", email);
+    <script>
+      const email = '<%= email %>' // ✅ explicitly assign email
+      console.log('Email from EJS:', email)
 
-  const userOtp = prompt("Enter OTP sent to " + email);
+      const userOtp = prompt('Enter OTP sent to ' + email)
 
-  if (userOtp) {
-    fetch(`/verify/${encodeURIComponent("<%= email %>")}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ otp: userOtp })
-    })
-    .then(res => res.json())
-    .then(data => {
-      console.log("Response:", data);
-      if (data.accessToken) {
-        window.location.href = `http://localhost:8080/dashboard/${data.accessToken}`;
-      } else {
-        alert(data.error || "OTP verification failed");
+      if (userOtp) {
+        fetch(`/verify/${encodeURIComponent('<%= email %>')}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ otp: userOtp }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            console.log('Response:', data)
+            if (data.accessToken) {
+              window.location.href = `http://localhost:3000/dashboard/${data.accessToken}`
+            } else {
+              alert(data.error || 'OTP verification failed')
+            }
+          })
+          .catch((err) => alert('Error verifying OTP: ' + err))
       }
-    })
-    .catch(err => alert("Error verifying OTP: " + err));
-  }
-</script>
-
-
-</body>
+    </script>
+  </body>
 </html>

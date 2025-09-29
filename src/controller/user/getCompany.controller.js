@@ -1,15 +1,12 @@
 const { prisma } = require('../../../config/db')
 
 const getCompany = async (req, res) => {
+  const companyId = req.companyId
+  console.log('CompanyId from middleware:', companyId)
+
   try {
     const companies = await prisma.company.findMany({
-      include: {
-        services: true,
-        users: true,
-        contacts: true,
-        projects: true,
-        testimonials: true,
-      },
+      where: { id: companyId },
     })
     res.status(200).json(companies)
   } catch (error) {

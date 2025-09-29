@@ -4,6 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+//todo: no subsidary chld data also store in company, get company by id, get data by id, res data in jsom not in array
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -15,9 +17,10 @@ datasource db {
 }
 
 enum Role {
+  SUPERADMIN
   ADMIN
   USER
-  MANAGER
+  // MANAGER
 }
 
 enum Status {
@@ -29,9 +32,9 @@ enum Status {
 enum ProjectType {
   RESIDENTIAL // Houses, apartments, villas
   COMMERCIAL // Offices, malls, shops
-  INDUSTRIAL // Factories, warehouses, plants
-  INSTITUTIONAL // Schools, hospitals, colleges
-  INFRASTRUCTURE // Roads, bridges, airports
+  // INDUSTRIAL // Factories, warehouses, plants
+  // INSTITUTIONAL // Schools, hospitals, colleges
+  // INFRASTRUCTURE // Roads, bridges, airports
   MIXED_USE // Combination (e.g., residential + commercial)
   RENOVATION // Remodeling / restoration
   OTHER // For cases not covered above
@@ -41,27 +44,29 @@ enum ProjectType {
 
 model Company {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  title             String?   @unique
+  title             String?
   aboutUs           String?
   whatWeDO          Json?
   establishmentYear DateTime?
   officeStaff       Int?
   fieldWorkers      Int?
   projectsCount     Int? // renamed from "Projects" to avoid confusion with relation
+  url               String    @unique
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   // Relations
-  services     Service[]
-  users        User[]
-  contacts     Contact[]
-  projects     Project[]
-  subsidiaries Subsidiary[]
-  careers      Career[]
-  teams        Team[]
+  // services Service[]
+  users    User[]
+  contacts Contact[]
+  projects Project[]
+  careers  Career[]
+  teams    Team[]
 }
 
 model User {
   id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  email     String    @unique
+  email     String
   name      String?
   role      Role      @default(USER)
   createdAt DateTime  @default(now())
@@ -70,8 +75,10 @@ model User {
   otpExpire DateTime?
 
   // Relation
-  companyId String  @db.ObjectId
-  company   Company @relation(fields: [companyId], references: [id])
+  companyId String?  @db.ObjectId
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  @@unique([email, companyId]) // ✅ email is unique per company
 }
 
 model Contact {
@@ -92,43 +99,46 @@ model Project {
   id             String      @id @default(auto()) @map("_id") @db.ObjectId
   title          String
   category       ProjectType
-  budget         Float
-  manager        String
+  budget         Float?
+  manager        String?
   aboutProject   String
   description    String
-  client         String
-  startDate      DateTime
-  CompletionDate DateTime
-  location       String
+  client         String?
+  startDate      DateTime?
+  CompletionDate DateTime?
+  location       String?
   teamSize       Int?
   status         Status
   milestones     Json?
   keyFeatures    String[]
   projectImage   String[]
-  projectVideo   String?
-  project360     String?
+  projectVideo   String[]
+  project360     String[]
   awards         Json?
+  featured       Boolean?    @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime?   @updatedAt
 
   // Relation
   companyId String  @db.ObjectId
   company   Company @relation(fields: [companyId], references: [id])
 }
 
-model Service {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  description String
-  features    String[]
+// model Service {
+//   id          String   @id @default(auto()) @map("_id") @db.ObjectId
+//   title       String
+//   description String
+//   features    String[]
 
-  primaryBtn    String? // e.g. "Get a Quote"
-  primaryLink   String? // e.g. "/quote"
-  secondaryBtn  String? // e.g. "Learn More"
-  secondaryLink String? // e.g. "/services/building"
+//   primaryBtn    String? // e.g. "Get a Quote"
+//   primaryLink   String? // e.g. "/quote"
+//   secondaryBtn  String? // e.g. "Learn More"
+//   secondaryLink String? // e.g. "/services/building"
 
-  // Relation
-  companyId String  @db.ObjectId
-  company   Company @relation(fields: [companyId], references: [id])
-}
+//   // Relation
+//   companyId String  @db.ObjectId
+//   company   Company @relation(fields: [companyId], references: [id])
+// }
 
 model Career {
   id               String   @id @default(auto()) @map("_id") @db.ObjectId
@@ -182,19 +192,4 @@ model Testimonials {
   rating      Int
   photo       String?
   createdAt   DateTime @default(now())
-}
-
-model Subsidiary {
-  id                String    @id @default(auto()) @map("_id") @db.ObjectId
-  title             String?   @unique
-  aboutUs           String?
-  whatWeDO          Json?
-  establishmentYear DateTime?
-  officeStaff       Int?
-  fieldWorkers      Int?
-  projectsCount     Int?
-
-  // Relation
-  parentId String  @db.ObjectId
-  parent   Company @relation(fields: [parentId], references: [id])
 }

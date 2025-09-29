@@ -5,15 +5,20 @@ const { getCompanyProject } = require('../controller/user/getProject.controller'
 const { createTestimonial } = require('../controller/user/createTestimonial.controller')
 const { feedbackLimiter } = require('../middlewares/rateLimiter.middleware')
 const { getTestimonials } = require('../controller/user/getTestimonial.controller')
+const companyMiddleware = require('../middlewares/company.middleware')
 
 const userCompanyRouter = express.Router()
 
-userCompanyRouter.get('/get-company', getCompany)
-userCompanyRouter.get('/get-contact', getCompanyContact)
+userCompanyRouter.get('/get-company', companyMiddleware.verifyCompanyViaUrl, getCompany)
+userCompanyRouter.get('/get-contact', companyMiddleware.verifyCompanyViaUrl, getCompanyContact)
 
 // Get Project
-userCompanyRouter.get('/get-project', getCompanyProject)
-userCompanyRouter.get('/get-project/:projectId', getCompanyProject)
+userCompanyRouter.get('/get-project', companyMiddleware.verifyCompanyViaUrl, getCompanyProject)
+userCompanyRouter.get(
+  '/get-project/:projectId',
+  companyMiddleware.verifyCompanyViaUrl,
+  getCompanyProject
+)
 
 // Testimonials
 userCompanyRouter.post('/post/testimonial', feedbackLimiter, createTestimonial)

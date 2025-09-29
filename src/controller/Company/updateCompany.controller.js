@@ -4,10 +4,10 @@ const { prisma } = require('../../../config/db')
 const updateCompany = async (req, res) => {
   try {
     // companyId comes from JWT (set in verifyAccessToken middleware)
-    // const companyId = req.user.companyId;
+    const companyId = req.user.companyId
 
     const {
-      companyId,
+      // companyId,
       aboutUs,
       whatWeDO,
       establishmentYear,
