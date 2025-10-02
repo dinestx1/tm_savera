@@ -1,5 +1,6 @@
 const express = require('express')
 const multer = require('multer')
+const { getCompany } = require('../controller/Company/getCompany.controller')
 const { createCompany } = require('../controller/Company/createCompany.controller')
 const authMiddleware = require('../middlewares/auth.middleware')
 const { updateCompany } = require('../controller/Company/updateCompany.controller')
@@ -9,6 +10,8 @@ const { createProject } = require('../controller/Company/createProject.controlle
 const { updateCompanyProject } = require('../controller/Company/updateProject.controller')
 const upload = require('../middlewares/upload.middleware')
 const adminCompanyRouter = express.Router()
+
+adminCompanyRouter.get('/get-company', getCompany) // ✅ Working fine
 
 adminCompanyRouter.post('/create-company-profile', authMiddleware.verifyAccessToken, createCompany) // ✅ Working fine -> only for superAdmin
 
