@@ -1,7 +1,7 @@
 const express = require('express')
 const { getCompany } = require('../controller/user/getCompany.controller')
 const { getCompanyContact } = require('../controller/user/getContact.controller')
-const { getCompanyProject } = require('../controller/user/getProject.controller')
+const { getCompanyProject,getProjectById } = require('../controller/user/getProject.controller')
 const { createTestimonial } = require('../controller/user/createTestimonial.controller')
 const { feedbackLimiter } = require('../middlewares/rateLimiter.middleware')
 const { getTestimonials } = require('../controller/user/getTestimonial.controller')
@@ -17,7 +17,7 @@ userCompanyRouter.get('/get-project', companyMiddleware.verifyCompanyViaUrl, get
 userCompanyRouter.get(
   '/get-project/:projectId',
   companyMiddleware.verifyCompanyViaUrl,
-  getCompanyProject
+ getProjectById
 )
 
 // Testimonials

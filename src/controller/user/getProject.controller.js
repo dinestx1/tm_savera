@@ -12,4 +12,23 @@ const getCompanyProject = async (req, res) => {
   }
 }
 
-module.exports = { getCompanyProject }
+
+const getProjectById = async (req, res) => {
+  try {
+    const { projectId } = req.params; // assuming projectId comes from route params
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId }, // projectId should match the primary key
+    });
+
+    if (!project) {
+      return res.status(404).json({ error: "Project not found" });
+    }
+
+    return res.status(200).json(project);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+module.exports = { getCompanyProject,getProjectById }

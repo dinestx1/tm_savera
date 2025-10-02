@@ -2,9 +2,9 @@ const { prisma } = require('../../../config/db')
 
 const getCompanyContact = async (req, res) => {
   const companyId = req.companyId
-  console.log('CompanyId from middleware:', companyId)
+
   try {
-    const contacts = await prisma.contact.findMany({
+    const contacts = await prisma.contact.findFirst({
       where: {
         companyId: companyId,
       },
